@@ -118,7 +118,7 @@ public class ReturnMenu {
 이렇게 유저 권한을 미리 가져와서 , 변수에 담고 ,비교를 하는것이 메서드 호출 3번하는거보다 메서드 1번 호출 하는게 더 빠를거같다..(아님말고..)
 
 
-# 주제와 관련된 클래스 , 그에 해당하는 메서드만을 선언하자 
+# 주제와 관련된 클래스 , 그에 해당하는 메서드만을 선언하자 - Single-responsibility principle
 
 이건또 뭔소리냐?
 
@@ -170,3 +170,25 @@ public String getAuth() {
 라는게 본인 생각이다.
 
 이는 마치 하나의 함수에서는 하나의 기능이 작동해야하는원리와 같다 보면된다.
+
+``` java 
+// 빙고 
+public List<?> getUser(){
+return queryBuilder.findAll();
+}
+
+// 이거 안됌 
+public List<?> getUser(){
+	List<?> userList = queryBuilder.findAll();
+	List<?> fileList = queryBuilder.findAll();
+
+	HashMap<String , Object> resultMap = new HashMap<String , Object>();
+	resultMap.put("userList" ,userList);
+	resultMap.put("fileList" ,fileList);
+return resultMap;
+}
+
+```
+하나의 메서드에서는 하나의 기능만 하도록한다. 
+
+객체 지향 프로그래밍에서 단일 책임 원칙이란 모든 클래스는 하나의 책임만 가지며, 클래스는 그 책임을 완전히 캡슐화해야 함을 일컫는다. 클래스가 제공하는 모든 기능은 이 책임과 주의 깊게 부합해야 한다.

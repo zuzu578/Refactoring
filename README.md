@@ -1,4 +1,8 @@
 # Refactoring
+
+![tetet](https://user-images.githubusercontent.com/69393030/175870821-5d1c11f6-5407-4f8c-ac0a-e718ffb1601a.png)
+![tessssss](https://user-images.githubusercontent.com/69393030/175870917-6c98c78f-668a-4d77-966f-5fb7054ca753.png)
+
 주관적인 리팩토링 ( 진짜 주관적임 다맞는건 아님 )
 
 개발하다보니 뭔가 이렇게하면 좀더 좋지않을까? 라는생각임 오조오억번 이야기하지만 "주관적" 이라고 
@@ -112,3 +116,57 @@ public class ReturnMenu {
 ```
 
 이렇게 유저 권한을 미리 가져와서 , 변수에 담고 ,비교를 하는것이 메서드 호출 3번하는거보다 메서드 1번 호출 하는게 더 빠를거같다..(아님말고..)
+
+
+# util class 만들때 하나의 국한해서 네이밍을 하지말자
+
+이건또 뭔소리냐?
+
+```java
+class ReturnMenu {
+
+public String returnMenuList(List<MenuVO> menuList) throws JsonProcessingException {
+		SecurityAuth security = new SecurityAuth();
+		ObjectMapper mapper = new ObjectMapper();
+		String resultJsonString = "";
+		String userAuth = security.getAuth();
+		if(menuList != null) {				
+			if(userAuth.equals("ROLE_ADMIN")) {
+				resultJsonString = mapper.writeValueAsString(menuList);
+				
+			}else if(userAuth.equals("ROLE_USER")) {
+				menuList.stream().filter(item->!item.getMenuDc().equals("환경설정")).collect(Collectors.toList());
+				resultJsonString = mapper.writeValueAsString(menuList);
+			}else if(userAuth.equals("ROLE_ANONYMOUS")) {
+				return null;
+			}
+		}
+		return resultJsonString;
+	}
+	
+// 이거 금지 
+public String getAuth() {
+		String userAuth = "";
+		
+		SecurityContext context = SecurityContextHolder.getContext();
+		Authentication authentication = context.getAuthentication();
+		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+		Iterator<? extends GrantedAuthority> iter = authorities.iterator();
+		
+		while (iter.hasNext()) {
+		    GrantedAuthority auth = iter.next();
+		    userAuth = auth.getAuthority();
+		}
+		return userAuth;
+	}
+
+}
+
+
+
+```
+보이는가 ? ReturnMenu 라는 유틸 클래스에 메뉴 리턴해주는 메서드만 있어야할거같은데 왜 권한 을 가져오는 메서드도 같이 있을까? 
+이렇게 하는것보다는 차라리 하나의 주제를 가진 클래스가 그 하나의 주제를 바탕으로 동작하는 메서드들을 선언하는게 맞지 않냐?
+라는게 본인 생각이다.
+
+이는 마치 하나의 함수에서는 하나의 기능이 작동해야하는원리와 같다 보면된다.

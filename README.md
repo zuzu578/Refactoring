@@ -192,3 +192,34 @@ return resultMap;
 하나의 메서드에서는 하나의 기능만 하도록한다. 
 
 객체 지향 프로그래밍에서 단일 책임 원칙이란 모든 클래스는 하나의 책임만 가지며, 클래스는 그 책임을 완전히 캡슐화해야 함을 일컫는다. 클래스가 제공하는 모든 기능은 이 책임과 주의 깊게 부합해야 한다.
+
+# controller 에서는 parameter 만 받고 웬만한 비즈니스 로직은 서비스에 작성하자 
+
+```java
+
+@RestController
+public class TestController{
+
+@GetMapping("/getUserList")
+public List<?> getUserList(){
+	JPAQueryFactory queryBuilder = new JPAQueryFactory(entityManager);
+	Quser  user = new Quser("q1");
+	
+	return queryBuilder
+	.select(user)
+	.from(user)
+	.where(user.deletedTime.isNull())
+	.offset(0)
+	.limit(10)
+	.fetchAll();
+
+}
+
+
+}
+
+
+
+```
+
+이거 보다는 queryBuilder 해주는 서비스를 따로 빼서 이런 로직을 서비스로직으로 작성하도록한다. 
